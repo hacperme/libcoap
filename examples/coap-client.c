@@ -19,6 +19,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef _WIN32
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #define strcasecmp _stricmp
 #define strncasecmp _strnicmp
 #define fileno _fileno
@@ -1606,6 +1609,26 @@ main(int argc, char **argv) {
   struct sigaction sa;
 #endif
 
+#ifdef _WIN32
+  WORD wVersionRequested;
+  WSADATA wsaData;
+  int err;
+
+  /* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+  wVersionRequested = MAKEWORD(2, 2);
+
+  err = WSAStartup(wVersionRequested, &wsaData);
+  if (err != 0)
+  {
+    /* Tell the user that we could not find a usable */
+    /* Winsock DLL.                                  */
+    printf("WSAStartup failed with error: %d\n", err);
+    return 1;
+  }
+
+#endif
+
+
   /* Initialize libcoap library */
   coap_startup();
 
@@ -1998,6 +2021,9 @@ main(int argc, char **argv) {
 
 finish:
 
+#ifdef _WIN32
+  WSACleanup();
+#endif
   /* Clean up library usage */
   coap_session_release(session);
   coap_free_context(ctx);
