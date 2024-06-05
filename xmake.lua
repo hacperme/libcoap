@@ -16,3 +16,12 @@ target("libcoapexample")
     if is_host("windows") then 
         add_ldflags("-lws2_32", "-static-libstdc++","-static", "-static-libgcc")
     end
+
+target("coap_client")
+    set_kind("binary")
+    add_deps("libcoap")
+    add_files("examples/coap_client_demo.c")
+    add_includedirs("include")
+    if is_host("windows") then 
+        add_ldflags("-lws2_32", "-static-libstdc++","-static", "-static-libgcc")
+    end
